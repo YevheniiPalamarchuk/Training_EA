@@ -68,6 +68,34 @@ namespace Training_EA
 
             return selectedParentIndex;
         }
+        // Recombination (Arithmetic crossover)
+        static double[][] ApplyCrossover(double[][] population, int dimensions, double crossoverRate)
+        {
+            Random random = new Random();
+            int populationSize = population.Length;
+
+            for (int i = 0; i < populationSize - 1; i += 2)
+            {
+                // Apply crossover with a certain probability
+                if (random.NextDouble() < crossoverRate)
+                {
+                    double alpha = random.NextDouble();
+
+                    // Perform arithmetic crossover
+                    for (int j = 0; j < dimensions; j++)
+                    {
+                        double temp = alpha * population[i][j] + (1 - alpha) * population[i + 1][j];
+                        population[i + 1][j] = alpha * population[i + 1][j] + (1 - alpha) * population[i][j];
+                        population[i][j] = temp;
+                    }
+                }
+            }
+
+            return population;
+        }
+
+
+
 
         // Body
         static void Main(string[] args)
@@ -125,9 +153,16 @@ namespace Training_EA
 
             int iterations = dimensions * 10000;
             int tournamentSize = 3;
+            double crossoverRate = 0.7;
+
+
             for (int iteration = 0; iteration < iterations; iteration++)
             {
+                // Tournament Selection
                 int selectedParentIndex = TournamentSelection(population, fitnessValues, tournamentSize);
+
+                // Apply Crossover
+                population = ApplyCrossover(population, dimensions, crossoverRate);
 
                 // Retrieve the selected solution values
                 double[] selectedSolution = population[selectedParentIndex];
