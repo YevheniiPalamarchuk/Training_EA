@@ -77,18 +77,18 @@ namespace Training_EA
             double maxValue = 30;
             int populationSize = 20;
 
-            double[][] initialPopulation = GenerateInitialPopulation(populationSize, dimensions, minValue, maxValue);
-            double[] fitnessValues = EvaluateGeneralizedRosenbrock(initialPopulation);
+            double[][] population = GenerateInitialPopulation(populationSize, dimensions, minValue, maxValue);
+            double[] fitnessValues = EvaluateGeneralizedRosenbrock(population);
 
 
             // Display the generated initial population
             Console.WriteLine("Generated Initial Population:");
-            for (int i = 0; i < initialPopulation.Length; i++)
+            for (int i = 0; i < population.Length; i++)
             {
                 Console.Write($"Solution {i + 1}: [");
                 for (int j = 0; j < dimensions; j++)
                 {
-                    Console.Write($"{initialPopulation[i][j],10:F4}");
+                    Console.Write($"{population[i][j],10:F4}");
                     if (j < dimensions - 1)
                         Console.Write(", ");
                 }
@@ -97,12 +97,12 @@ namespace Training_EA
 
             // Display the results for each solution
             Console.WriteLine("Fitness Values for Each Solution:");
-            for (int i = 0; i < initialPopulation.Length; i++)
+            for (int i = 0; i < population.Length; i++)
             {
                 Console.Write($"Solution {i + 1}: [");
                 for (int j = 0; j < dimensions; j++)
                 {
-                    Console.Write($"{initialPopulation[i][j],10:F4}");
+                    Console.Write($"{population[i][j],10:F4}");
                     if (j < dimensions - 1)
                         Console.Write(", ");
                 }
@@ -117,7 +117,7 @@ namespace Training_EA
             Console.Write("Solution: [");
             for (int j = 0; j < dimensions; j++)
             {
-                Console.Write($"{initialPopulation[optimalSolutionIndex][j],10:F4}");
+                Console.Write($"{population[optimalSolutionIndex][j],10:F4}");
                 if (j < dimensions - 1)
                     Console.Write(", ");
             }
@@ -127,10 +127,20 @@ namespace Training_EA
             int tournamentSize = 3;
             for (int iteration = 0; iteration < iterations; iteration++)
             {
-                int selectedParentIndex = TournamentSelection(initialPopulation, fitnessValues, tournamentSize);
+                int selectedParentIndex = TournamentSelection(population, fitnessValues, tournamentSize);
 
-                // Do something with the selected parent index (e.g., print it).
-                Console.WriteLine($"Iteration {iteration + 1}: Selected Parent Index = {selectedParentIndex}");
+                // Retrieve the selected solution values
+                double[] selectedSolution = population[selectedParentIndex];
+
+                // Display the selected parent index and its solution values
+                Console.Write($"Iteration {iteration + 1}: Selected Parent Index = {selectedParentIndex}, Solution Values = [");
+                for (int j = 0; j < dimensions; j++)
+                {
+                    Console.Write($"{selectedSolution[j],10:F4}");
+                    if (j < dimensions - 1)
+                        Console.Write(", ");
+                }
+                Console.WriteLine("]");
             }
         }
     }
