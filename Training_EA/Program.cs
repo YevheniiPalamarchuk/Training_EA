@@ -47,15 +47,39 @@ namespace Training_EA
             return fitnessValues;
         }
 
+        // Selection: Tournament Selection
+        static int TournamentSelection(double[][] population, double[] fitnessValues, int tournamentSize)
+        {
+            Random random = new Random();
+
+            int populationSize = population.Length;
+            int selectedParentIndex = random.Next(populationSize); // Initialize with a random individual.
+
+            for (int i = 1; i < tournamentSize; i++)
+            {
+                int competitorIndex = random.Next(populationSize); // Choose another random individual.
+
+                // Compare fitness values and select the one with better fitness.
+                if (fitnessValues[competitorIndex] < fitnessValues[selectedParentIndex])
+                {
+                    selectedParentIndex = competitorIndex;
+                }
+            }
+
+            return selectedParentIndex;
+        }
+
+        // Body
         static void Main(string[] args)
         {
             int dimensions = 5;
             double minValue = -30;
             double maxValue = 30;
+            int populationSize = 20;
 
-            double[][] initialPopulation = GenerateInitialPopulation(20, dimensions, minValue, maxValue);
-
+            double[][] initialPopulation = GenerateInitialPopulation(populationSize, dimensions, minValue, maxValue);
             double[] fitnessValues = EvaluateGeneralizedRosenbrock(initialPopulation);
+
 
             // Display the generated initial population
             Console.WriteLine("Generated Initial Population:");
@@ -98,6 +122,16 @@ namespace Training_EA
                     Console.Write(", ");
             }
             Console.WriteLine($"] Fitness: {fitnessValues[optimalSolutionIndex]:F6}");
+
+            int iterations = dimensions * 10000;
+            int tournamentSize = 3;
+            for (int iteration = 0; iteration < iterations; iteration++)
+            {
+                int selectedParentIndex = TournamentSelection(initialPopulation, fitnessValues, tournamentSize);
+
+                // Do something with the selected parent index (e.g., print it).
+                Console.WriteLine($"Iteration {iteration + 1}: Selected Parent Index = {selectedParentIndex}");
+            }
         }
     }
 }
