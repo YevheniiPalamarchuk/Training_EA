@@ -94,6 +94,44 @@ namespace Training_EA
             return population;
         }
 
+        // Mutation 
+        static void ApplyMutation(double[] individual, double mutationRate, double mutationRange)
+        {
+            Random random = new Random();
+
+            for (int i = 0; i < individual.Length; i++)
+            {
+                if (random.NextDouble() < mutationRate)
+                {
+                    // Apply mutation to the gene with a random value within the mutation range
+                    individual[i] += (random.NextDouble() * 2 - 1) * mutationRange;
+                }
+            }
+        }
+
+        // Replacement
+        static double[][] ReplacePopulation(double[][] population, double[][] offspring, double[] fitnessValues)
+        {
+            int populationSize = population.Length;
+            int offspringSize = offspring.Length;
+
+            // Combine parents and offspring
+            double[][] combinedPopulation = population.Concat(offspring).ToArray();
+            double[][] newPopulation = new double[populationSize][];
+
+            // Select individuals with the best fitness values
+            var sortedPopulation = combinedPopulation.Zip(fitnessValues, (p, f) => new { Solution = p, Fitness = f })
+                                                    .OrderBy(item => item.Fitness)
+                                                    .ToList();
+
+            for (int i = 0; i < populationSize; i++)
+            {
+                newPopulation[i] = sortedPopulation[i].Solution;
+            }
+
+            return newPopulation;
+        }
+
 
 
 
@@ -151,11 +189,15 @@ namespace Training_EA
             }
             Console.WriteLine($"] Fitness: {fitnessValues[optimalSolutionIndex]:F6}");
 
+            // Variables needed for EA
             int iterations = dimensions * 10000;
             int tournamentSize = 3;
             double crossoverRate = 0.7;
+            double mutationRate = 0.1;
+            double mutationRange = 1.0;
 
 
+            // Main loop
             for (int iteration = 0; iteration < iterations; iteration++)
             {
                 // Tournament Selection
@@ -163,6 +205,12 @@ namespace Training_EA
 
                 // Apply Crossover
                 population = ApplyCrossover(population, dimensions, crossoverRate);
+
+                // Apply Mutation
+                for (int i = 0; i < population.Length; i++)
+                {
+                    ApplyMutation(population[i], mutationRate, mutationRange);
+                }
 
                 // Retrieve the selected solution values
                 double[] selectedSolution = population[selectedParentIndex];
@@ -177,6 +225,7 @@ namespace Training_EA
                 }
                 Console.WriteLine("]");
             }
+
         }
     }
 }
