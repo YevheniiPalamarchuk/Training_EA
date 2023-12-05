@@ -6,11 +6,10 @@ namespace Training_EA
 {
     internal class Program
     {
+        private static Random random = new Random();
         static double[][] GenerateInitialPopulation(int populationSize, int dimensions, double minValue, double maxValue)
         {
             double[][] population = new double[populationSize][];
-
-            Random random = new Random();
 
             for (int i = 0; i < populationSize; i++)
             {
@@ -18,7 +17,7 @@ namespace Training_EA
 
                 for (int j = 0; j < dimensions; j++)
                 {
-                    population[i][j] = random.NextDouble() * (maxValue - minValue) + minValue;
+                    population[i][j] = Math.Round(random.NextDouble() * (maxValue - minValue) + minValue, 2);
                 }
             }
 
@@ -51,7 +50,6 @@ namespace Training_EA
         // Selection: Tournament Selection
         static int TournamentSelection(double[][] population, double[] fitnessValues, int tournamentSize)
         {
-            Random random = new Random();
 
             int populationSize = population.Length;
             int selectedParentIndex = random.Next(populationSize); // Initialize with a random individual.
@@ -73,7 +71,6 @@ namespace Training_EA
         // Recombination (Arithmetic crossover)
         static double[][] ApplyCrossover(double[][] population, int dimensions, double crossoverRate)
         {
-            Random random = new Random();
             int populationSize = population.Length;
 
             for (int i = 0; i < populationSize - 1; i += 2)
@@ -99,7 +96,6 @@ namespace Training_EA
         // Mutation 
         static void ApplyMutation(double[] individual, double mutationRate, double mutationRange)
         {
-            Random random = new Random();
 
             for (int i = 0; i < individual.Length; i++)
             {
@@ -140,7 +136,8 @@ namespace Training_EA
         // Body
         static void Main(string[] args)
         {
-            int dimensions = 3;
+            // Generalized Rsenbrock values
+            int dimensions = 10;
             double minValue = -30;
             double maxValue = 30;
             int populationSize = 20;
@@ -149,33 +146,33 @@ namespace Training_EA
             double[] fitnessValues = EvaluateGeneralizedRosenbrock(population);
 
 
-            // Display the generated initial population
-            Console.WriteLine("Generated Initial Population:");
-            for (int i = 0; i < population.Length; i++)
-            {
-                Console.Write($"Solution {i + 1}: [");
-                for (int j = 0; j < dimensions; j++)
-                {
-                    Console.Write($"{population[i][j],10:F4}");
-                    if (j < dimensions - 1)
-                        Console.Write(", ");
-                }
-                Console.WriteLine("]");
-            }
+            //// Display the generated initial population
+            //Console.WriteLine("Generated Initial Population:");
+            //for (int i = 0; i < population.Length; i++)
+            //{
+            //    Console.Write($"Solution {i + 1}: [");
+            //    for (int j = 0; j < dimensions; j++)
+            //    {
+            //        Console.Write($"{population[i][j],10:F2}");
+            //        if (j < dimensions - 1)
+            //            Console.Write(", ");
+            //    }
+            //    Console.WriteLine("]");
+            //}
 
-            // Display the results for each solution
-            Console.WriteLine("Fitness Values for Each Solution:");
-            for (int i = 0; i < population.Length; i++)
-            {
-                Console.Write($"Solution {i + 1}: [");
-                for (int j = 0; j < dimensions; j++)
-                {
-                    Console.Write($"{population[i][j],10:F4}");
-                    if (j < dimensions - 1)
-                        Console.Write(", ");
-                }
-                Console.WriteLine($"] Fitness: {fitnessValues[i]:F6}");
-            }
+            //// Display the results for each solution
+            //Console.WriteLine("Fitness Values for Each Solution:");
+            //for (int i = 0; i < population.Length; i++)
+            //{
+            //    Console.Write($"Solution {i + 1}: [");
+            //    for (int j = 0; j < dimensions; j++)
+            //    {
+            //        Console.Write($"{population[i][j],10:F2}");
+            //        if (j < dimensions - 1)
+            //            Console.Write(", ");
+            //    }
+            //    Console.WriteLine($"] Fitness: {fitnessValues[i]:F6}");
+            //}
 
             // Find the index of the solution with the minimum fitness value
             int optimalSolutionIndex = Array.IndexOf(fitnessValues, fitnessValues.Min());
@@ -185,7 +182,7 @@ namespace Training_EA
             Console.Write("Solution: [");
             for (int j = 0; j < dimensions; j++)
             {
-                Console.Write($"{population[optimalSolutionIndex][j],10:F4}");
+                Console.Write($"{population[optimalSolutionIndex][j],10:F2}");
                 if (j < dimensions - 1)
                     Console.Write(", ");
             }
@@ -193,8 +190,8 @@ namespace Training_EA
 
             // Variables needed for EA
             int iterations = dimensions * 10000;
-            int tournamentSize = 3;
-            double crossoverRate = 0.7;
+            int tournamentSize = 2;
+            double crossoverRate = 0.5;
             double mutationRate = 0.1;
             double mutationRange = 1.0;
             int offspringSize = populationSize;
@@ -250,7 +247,7 @@ namespace Training_EA
                 Console.Write($"Iteration {iteration + 1}: Selected Parent Index = {selectedParentIndex}, Solution Values = [");
                 for (int j = 0; j < dimensions; j++)
                 {
-                    Console.Write($"{selectedSolution[j],10:F4}");
+                    Console.Write($"{selectedSolution[j],10:F2}");
                     if (j < dimensions - 1)
                         Console.Write(", ");
                 }
