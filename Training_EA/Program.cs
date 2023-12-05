@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Training_EA
@@ -68,6 +69,7 @@ namespace Training_EA
 
             return selectedParentIndex;
         }
+        
         // Recombination (Arithmetic crossover)
         static double[][] ApplyCrossover(double[][] population, int dimensions, double crossoverRate)
         {
@@ -113,7 +115,6 @@ namespace Training_EA
         static double[][] ReplacePopulation(double[][] population, double[][] offspring, double[] fitnessValues)
         {
             int populationSize = population.Length;
-            int offspringSize = offspring.Length;
 
             // Combine parents and offspring
             double[][] combinedPopulation = population.Concat(offspring).ToArray();
@@ -135,10 +136,11 @@ namespace Training_EA
 
 
 
+
         // Body
         static void Main(string[] args)
         {
-            int dimensions = 5;
+            int dimensions = 3;
             double minValue = -30;
             double maxValue = 30;
             int populationSize = 20;
@@ -195,7 +197,12 @@ namespace Training_EA
             double crossoverRate = 0.7;
             double mutationRate = 0.1;
             double mutationRange = 1.0;
+            int offspringSize = populationSize;
 
+
+            // Variables for tracking the best solution
+            double bestFitness = double.MaxValue; // Initialize with a large value for minimization
+            List<double> bestFitnessList = new List<double>();
 
             // Main loop
             for (int iteration = 0; iteration < iterations; iteration++)
@@ -212,8 +219,32 @@ namespace Training_EA
                     ApplyMutation(population[i], mutationRate, mutationRange);
                 }
 
+                // Evaluate fitness of the offspring
+                double[] offspringFitnessValues = EvaluateGeneralizedRosenbrock(population);
+
+                // Create offspring based on the crossover and mutation
+                double[][] offspring = ApplyCrossover(population, dimensions, crossoverRate);
+                for (int i = 0; i < offspring.Length; i++)
+                {
+                    ApplyMutation(offspring[i], mutationRate, mutationRange);
+                }
+
+                // Replace the population
+                population = ReplacePopulation(population, offspring, offspringFitnessValues);
+
                 // Retrieve the selected solution values
                 double[] selectedSolution = population[selectedParentIndex];
+                double[] fitnessValuesLoop = EvaluateGeneralizedRosenbrock(population);
+                double selectedFitness = fitnessValuesLoop[selectedParentIndex];
+
+                // Update the best solution if a better one is found
+                if (selectedFitness < bestFitness)
+                {
+                    bestFitness = selectedFitness;
+                    // Add the best fitness to the list
+                    bestFitnessList.Add(bestFitness);
+                }
+
 
                 // Display the selected parent index and its solution values
                 Console.Write($"Iteration {iteration + 1}: Selected Parent Index = {selectedParentIndex}, Solution Values = [");
@@ -223,9 +254,14 @@ namespace Training_EA
                     if (j < dimensions - 1)
                         Console.Write(", ");
                 }
-                Console.WriteLine("]");
+                Console.WriteLine($"] Fitness: {selectedFitness:F6}, Best Fitness: {bestFitness:F6}");
             }
-
+            // Display the list of best fitness values
+            Console.WriteLine("\nBest Fitness Values:");
+            foreach (var fitness in bestFitnessList)
+            {
+                Console.WriteLine($"Fitness: {fitness:F6}");
+            }
         }
     }
 }
