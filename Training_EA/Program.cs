@@ -7,6 +7,8 @@ namespace Training_EA
     internal class Program
     {
         private static Random random = new Random();
+        private static double mutationRate = 0.1;
+        private static double crossoverRate = 0.5;
         static double[][] GenerateInitialPopulation(int populationSize, int dimensions, double minValue, double maxValue)
         {
             double[][] population = new double[populationSize][];
@@ -129,7 +131,24 @@ namespace Training_EA
             return newPopulation;
         }
 
+        // Function to adapt mutation and crossover rates
+        static void AdaptMutationAndCrossoverRates(double currentFitness, double bestFitness)
+        {
+            if (currentFitness > bestFitness)
+            {
+                mutationRate *= 0.9; // decrease mutation rate
+                crossoverRate *= 0.9; // decrease crossover rate
+            }
+            else
+            {
+                mutationRate *= 1.1; // increase mutation rate
+                crossoverRate *= 1.1; // increase crossover rate
+            }
 
+            // Ensure rates are within a reasonable range (e.g., between 0 and 1)
+            mutationRate = Math.Max(0.1, Math.Min(1.0, mutationRate));
+            crossoverRate = Math.Max(0.1, Math.Min(1.0, crossoverRate));
+        }
 
 
 
@@ -137,7 +156,7 @@ namespace Training_EA
         static void Main(string[] args)
         {
             // Generalized Rsenbrock values
-            int dimensions = 10;
+            int dimensions = 5;
             double minValue = -30;
             double maxValue = 30;
             int populationSize = 20;
@@ -145,34 +164,6 @@ namespace Training_EA
             double[][] population = GenerateInitialPopulation(populationSize, dimensions, minValue, maxValue);
             double[] fitnessValues = EvaluateGeneralizedRosenbrock(population);
 
-
-            //// Display the generated initial population
-            //Console.WriteLine("Generated Initial Population:");
-            //for (int i = 0; i < population.Length; i++)
-            //{
-            //    Console.Write($"Solution {i + 1}: [");
-            //    for (int j = 0; j < dimensions; j++)
-            //    {
-            //        Console.Write($"{population[i][j],10:F2}");
-            //        if (j < dimensions - 1)
-            //            Console.Write(", ");
-            //    }
-            //    Console.WriteLine("]");
-            //}
-
-            //// Display the results for each solution
-            //Console.WriteLine("Fitness Values for Each Solution:");
-            //for (int i = 0; i < population.Length; i++)
-            //{
-            //    Console.Write($"Solution {i + 1}: [");
-            //    for (int j = 0; j < dimensions; j++)
-            //    {
-            //        Console.Write($"{population[i][j],10:F2}");
-            //        if (j < dimensions - 1)
-            //            Console.Write(", ");
-            //    }
-            //    Console.WriteLine($"] Fitness: {fitnessValues[i]:F6}");
-            //}
 
             // Find the index of the solution with the minimum fitness value
             int optimalSolutionIndex = Array.IndexOf(fitnessValues, fitnessValues.Min());
@@ -191,7 +182,7 @@ namespace Training_EA
             // Variables needed for EA
             int iterations = dimensions * 10000;
             int tournamentSize = 2;
-            double crossoverRate = 0.5;
+            double crossoverRate = 0.9;
             double mutationRate = 0.1;
             double mutationRange = 1.0;
             int offspringSize = populationSize;
@@ -216,8 +207,8 @@ namespace Training_EA
                     ApplyMutation(population[i], mutationRate, mutationRange);
                 }
 
-                // Evaluate fitness of the offspring
-                double[] offspringFitnessValues = EvaluateGeneralizedRosenbrock(population);
+                //// Evaluate fitness of the offspring
+                //double[] offspringFitnessValues = EvaluateGeneralizedRosenbrock(population);
 
                 // Create offspring based on the crossover and mutation
                 double[][] offspring = ApplyCrossover(population, dimensions, crossoverRate);
@@ -226,8 +217,12 @@ namespace Training_EA
                     ApplyMutation(offspring[i], mutationRate, mutationRange);
                 }
 
+                // Evaluate fitness of the offspring
+                double[] offspringFitnessValues = EvaluateGeneralizedRosenbrock(offspring);
+
                 // Replace the population
                 population = ReplacePopulation(population, offspring, offspringFitnessValues);
+
 
                 // Retrieve the selected solution values
                 double[] selectedSolution = population[selectedParentIndex];
@@ -240,6 +235,9 @@ namespace Training_EA
                     bestFitness = selectedFitness;
                     // Add the best fitness to the list
                     bestFitnessList.Add(bestFitness);
+
+                    // Adjust mutation and crossover rates based on progress
+                    AdaptMutationAndCrossoverRates(selectedFitness, bestFitness);
                 }
 
 
